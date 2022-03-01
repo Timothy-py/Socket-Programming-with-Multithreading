@@ -1,10 +1,14 @@
+from calendar import c
 import socket
 import threading
 
+HEADER = 64  # message length
 PORT = 5050
 # get the ip address of this computer
 SERVER = socket.gethostbyname(socket.gethostname())
 ADDR = (SERVER, PORT)
+FORMAT = 'utf-8'  # message encryption format
+DISCONNECT_MESSAGE = "!DISCONNECT"
 
 # specify the address family: ipV4
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -16,7 +20,20 @@ def handle_client(connection, address):
     """
     A function that handles newly connected clients
     """
-    pass
+    print(f"[NEW CONNECTION] {address} connected")
+
+    connected = True
+    while connected:
+        msg_length = connection.recv(HEADER).decode(FORMAT)
+        msg_length = int(msg_length)
+        msg = connection.recv(msg_length).decode(FORMAT)
+
+        if msg == DISCONNECT_MESSAGE:
+            connected = False
+
+        print(f"[{address}] {msg}")
+
+    connection.close()
 
 
 def start():
@@ -24,10 +41,11 @@ def start():
     A function that listen to new connections
     """
     server.listen()
+    print(f"[LISTENING] Server is listening on {SERVER}")
     while True:
         # accept an incoming connection and return the socket of the
         # connection and the client's address
-        connection, address = server.accept()
+        connection, address = server.accept()    # blocking operation
 
         # start a thread for the new connection
         thread = threading.Thread(
