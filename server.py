@@ -1,4 +1,3 @@
-from calendar import c
 import socket
 import threading
 
@@ -10,7 +9,7 @@ ADDR = (SERVER, PORT)
 FORMAT = 'utf-8'  # message encryption format
 DISCONNECT_MESSAGE = "!DISCONNECT"
 
-# specify the address family: ipV4
+# SETUP THE SOCKET: specify the address family: ipV4
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # bind the socket to the specified address
 server.bind(ADDR)
@@ -25,13 +24,16 @@ def handle_client(connection, address):
     connected = True
     while connected:
         msg_length = connection.recv(HEADER).decode(FORMAT)
-        msg_length = int(msg_length)
-        msg = connection.recv(msg_length).decode(FORMAT)
+        if msg_length:
+            msg_length = int(msg_length)
+            msg = connection.recv(msg_length).decode(FORMAT)
 
-        if msg == DISCONNECT_MESSAGE:
-            connected = False
+            if msg == DISCONNECT_MESSAGE:
+                connected = False
 
-        print(f"[{address}] {msg}")
+            print(f"[{address}] {msg}")
+            # send receipt to the client
+            connection.send("Message received".encode(FORMAT))
 
     connection.close()
 
