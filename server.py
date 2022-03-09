@@ -42,7 +42,7 @@ def start():
     """
     A function that listen to new connections
     """
-    server.listen()
+    server.listen()     # accept unlimited connections
     print(f"[LISTENING] Server is listening on {SERVER}")
     while True:
         # accept an incoming connection and return the socket of the
